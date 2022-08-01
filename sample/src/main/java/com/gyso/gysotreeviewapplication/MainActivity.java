@@ -10,36 +10,21 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.gyso.gysotreeviewapplication.base.Animal;
-import com.gyso.gysotreeviewapplication.base.AnimalTreeViewAdapter;
+import com.gyso.gysotreeviewapplication.base.Scene;
+import com.gyso.gysotreeviewapplication.base.SceneTreeViewAdapter;
 import com.gyso.gysotreeviewapplication.databinding.ActivityMainBinding;
 import com.gyso.treeview.TreeViewEditor;
 import com.gyso.treeview.layout.CompactDownTreeLayoutManager;
-import com.gyso.treeview.layout.CompactHorizonLeftAndRightLayoutManager;
-import com.gyso.treeview.layout.CompactRightTreeLayoutManager;
-import com.gyso.treeview.layout.CompactRingTreeLayoutManager;
-import com.gyso.treeview.layout.CompactUpTreeLayoutManager;
-import com.gyso.treeview.layout.CompactVerticalUpAndDownLayoutManager;
-import com.gyso.treeview.layout.DownTreeLayoutManager;
-import com.gyso.treeview.layout.ForceDirectedTreeLayoutManager;
-import com.gyso.treeview.layout.HorizonLeftAndRightLayoutManager;
-import com.gyso.treeview.layout.LeftTreeLayoutManager;
-import com.gyso.treeview.layout.RightTreeLayoutManager;
 import com.gyso.treeview.layout.TreeLayoutManager;
-import com.gyso.treeview.layout.VerticalUpAndDownLayoutManager;
 import com.gyso.treeview.line.BaseLine;
 import com.gyso.treeview.line.StraightLine;
 import com.gyso.treeview.listener.TreeViewControlListener;
 import com.gyso.treeview.model.NodeModel;
-import com.gyso.treeview.model.TreeModel;
-
-import java.util.Stack;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
     private ActivityMainBinding binding;
-    private NodeModel<Animal> targetNode;
+    private NodeModel<Scene> targetNode;
     private Handler handler = new Handler();
 
     @Override
@@ -67,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initWidgets() {
         //1 customs adapter
-        AnimalTreeViewAdapter adapter = new AnimalTreeViewAdapter();
+        SceneTreeViewAdapter adapter = new SceneTreeViewAdapter();
 
         //2 configure layout manager; unit dp
         TreeLayoutManager treeLayoutManager = getTreeLayoutManager();
@@ -83,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         doYourOwnJobs(editor, adapter);
     }
 
-    void doYourOwnJobs(TreeViewEditor editor, AnimalTreeViewAdapter adapter) {
+    void doYourOwnJobs(TreeViewEditor editor, SceneTreeViewAdapter adapter) {
         //drag to move node
         binding.dragEditModeRd.setOnCheckedChangeListener((v, isChecked) -> {
             editor.requestMoveNodeByDragging(isChecked);
@@ -103,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         adapter.setOnItemListener((item, node) -> {
-            Animal animal = node.getValue();
+            Scene animal = node.getValue();
             Toast.makeText(this, "you click the head of " + animal, Toast.LENGTH_SHORT).show();
         });
 
