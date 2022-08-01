@@ -6,10 +6,13 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.gyso.gysotreeviewapplication.base.Option;
 import com.gyso.gysotreeviewapplication.base.Scene;
 import com.gyso.gysotreeviewapplication.base.SceneTreeViewAdapter;
@@ -24,6 +27,7 @@ import com.gyso.treeview.model.NodeModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 	public static final String TAG = MainActivity.class.getSimpleName();
@@ -97,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 				add(new Option("Option 1"));
 			}
 		});
-		Scene scene5 = new Scene("Scene 3", new ArrayList<Option>());
+		Scene scene5 = new Scene("Scene 5", new ArrayList<Option>());
 		scenesAvailable.add(scene1);
 		scenesAvailable.add(scene2);
 		scenesAvailable.add(scene3);
@@ -117,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
 		//add some nodes
 		binding.addNodesBt.setOnClickListener(v -> {
 			// TODO select node to add. Works only with "?" nodes
+			showAvailableOptions();
 		});
 
 		//remove node
@@ -167,5 +172,26 @@ public class MainActivity extends AppCompatActivity {
 
 	private BaseLine getLine() {
 		return new StraightLine(Color.parseColor("#055287"), 2);
+	}
+
+	private void showAvailableOptions() {
+		BottomSheetDialog addSceneDialog = new BottomSheetDialog(this);
+		addSceneDialog.setContentView(R.layout.add_scene_layout);
+		ListView scenesListView = addSceneDialog.findViewById(R.id.scenesList);
+		Objects.requireNonNull(scenesListView);
+		// Fill data
+		String[] scenesIds = new String[scenesAvailable.size()];
+		for (int i = 0; i < scenesIds.length; i++) scenesIds[i] = scenesAvailable.get(i).id;
+		ArrayAdapter<String> scenesAdapter = new ArrayAdapter<>(
+				this,
+				android.R.layout.simple_list_item_1,
+				scenesIds
+		);
+		scenesListView.setAdapter(scenesAdapter);
+		// Add listener
+		scenesListView.setOnItemClickListener((adapterView, view, i, l) -> {
+			// TODO
+		});
+		addSceneDialog.show();
 	}
 }
