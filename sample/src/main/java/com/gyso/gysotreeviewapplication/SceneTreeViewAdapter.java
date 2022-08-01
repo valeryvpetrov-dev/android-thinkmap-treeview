@@ -1,4 +1,4 @@
-package com.gyso.gysotreeviewapplication.base;
+package com.gyso.gysotreeviewapplication;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,15 +7,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.gyso.gysotreeviewapplication.R;
 import com.gyso.gysotreeviewapplication.databinding.NodeBaseLayoutBinding;
+import com.gyso.gysotreeviewapplication.model.AbstractScene;
 import com.gyso.treeview.adapter.DrawInfo;
 import com.gyso.treeview.adapter.TreeViewAdapter;
 import com.gyso.treeview.adapter.TreeViewHolder;
 import com.gyso.treeview.line.BaseLine;
 import com.gyso.treeview.model.NodeModel;
 
-public class SceneTreeViewAdapter extends TreeViewAdapter<Scene> {
+public class SceneTreeViewAdapter extends TreeViewAdapter<AbstractScene> {
 	private OnItemClickListener listener;
 
 	public void setOnItemListener(OnItemClickListener listener) {
@@ -23,7 +23,7 @@ public class SceneTreeViewAdapter extends TreeViewAdapter<Scene> {
 	}
 
 	@Override
-	public TreeViewHolder<Scene> onCreateViewHolder(@NonNull ViewGroup viewGroup, NodeModel<Scene> node) {
+	public TreeViewHolder<AbstractScene> onCreateViewHolder(@NonNull ViewGroup viewGroup, NodeModel<AbstractScene> node) {
 		NodeBaseLayoutBinding nodeBinding = NodeBaseLayoutBinding.inflate(
 				LayoutInflater.from(viewGroup.getContext()),
 				viewGroup,
@@ -33,12 +33,12 @@ public class SceneTreeViewAdapter extends TreeViewAdapter<Scene> {
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull TreeViewHolder<Scene> holder) {
+	public void onBindViewHolder(@NonNull TreeViewHolder<AbstractScene> holder) {
 		View itemView = holder.getView();
-		NodeModel<Scene> node = holder.getNode();
+		NodeModel<AbstractScene> node = holder.getNode();
 		TextView idTextView = itemView.findViewById(R.id.id);
-		final Scene animal = node.value;
-		idTextView.setText(animal.id);
+		final AbstractScene scene = node.value;
+		idTextView.setText(scene.getId());
 		itemView.setOnClickListener(v -> {
 			if (listener != null) listener.onItemClick(v, node);
 		});
@@ -50,6 +50,6 @@ public class SceneTreeViewAdapter extends TreeViewAdapter<Scene> {
 	}
 
 	public interface OnItemClickListener {
-		void onItemClick(View item, NodeModel<Scene> node);
+		void onItemClick(View item, NodeModel<AbstractScene> node);
 	}
 }

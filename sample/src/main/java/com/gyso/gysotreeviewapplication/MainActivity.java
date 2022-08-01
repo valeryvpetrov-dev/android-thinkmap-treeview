@@ -1,5 +1,6 @@
 package com.gyso.gysotreeviewapplication;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,10 +14,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.gyso.gysotreeviewapplication.base.Option;
-import com.gyso.gysotreeviewapplication.base.Scene;
-import com.gyso.gysotreeviewapplication.base.SceneTreeViewAdapter;
 import com.gyso.gysotreeviewapplication.databinding.ActivityMainBinding;
+import com.gyso.gysotreeviewapplication.model.AbstractScene;
+import com.gyso.gysotreeviewapplication.model.Option;
+import com.gyso.gysotreeviewapplication.model.Scene;
+import com.gyso.gysotreeviewapplication.model.UnknownScene;
 import com.gyso.treeview.TreeViewEditor;
 import com.gyso.treeview.layout.CompactDownTreeLayoutManager;
 import com.gyso.treeview.layout.TreeLayoutManager;
@@ -24,6 +26,7 @@ import com.gyso.treeview.line.BaseLine;
 import com.gyso.treeview.line.StraightLine;
 import com.gyso.treeview.listener.TreeViewControlListener;
 import com.gyso.treeview.model.NodeModel;
+import com.gyso.treeview.model.TreeModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +35,12 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 	public static final String TAG = MainActivity.class.getSimpleName();
 	private ActivityMainBinding binding;
-	private NodeModel<Scene> targetNode;
 	private Handler handler = new Handler();
+
+	private TreeModel<AbstractScene> treeModel;
+	private TreeViewEditor editor;
+	private SceneTreeViewAdapter adapter;
+	private NodeModel<AbstractScene> targetNode;
 	private List<Scene> scenesAvailable = new ArrayList<>();
 
 	@Override
@@ -61,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 	 */
 	private void initWidgets() {
 		//1 customs adapter
-		SceneTreeViewAdapter adapter = new SceneTreeViewAdapter();
+		adapter = new SceneTreeViewAdapter();
 
 		//2 configure layout manager; unit dp
 		TreeLayoutManager treeLayoutManager = getTreeLayoutManager();
@@ -70,10 +77,10 @@ public class MainActivity extends AppCompatActivity {
 		binding.baseTreeView.setAdapter(adapter);
 		binding.baseTreeView.setTreeLayoutManager(treeLayoutManager);
 
-		initData();
-
 		//5 get an editor. Note: an adapter must set before get an editor.
-		final TreeViewEditor editor = binding.baseTreeView.getEditor();
+		editor = binding.baseTreeView.getEditor();
+
+		initData();
 
 		//6 you own others jobs
 		doYourOwnJobs(editor, adapter);
@@ -130,8 +137,8 @@ public class MainActivity extends AppCompatActivity {
 		});
 
 		adapter.setOnItemListener((item, node) -> {
-			Scene animal = node.getValue();
-			Toast.makeText(this, "you click the head of " + animal, Toast.LENGTH_SHORT).show();
+			AbstractScene scene = node.getValue();
+			Toast.makeText(this, String.format("Click on %s", scene.toString()), Toast.LENGTH_SHORT).show();
 		});
 
 		//treeView control listener
@@ -181,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 		Objects.requireNonNull(scenesListView);
 		// Fill data
 		String[] scenesIds = new String[scenesAvailable.size()];
-		for (int i = 0; i < scenesIds.length; i++) scenesIds[i] = scenesAvailable.get(i).id;
+		for (int i = 0; i < scenesIds.length; i++) scenesIds[i] = scenesAvailable.get(i).getId();
 		ArrayAdapter<String> scenesAdapter = new ArrayAdapter<>(
 				this,
 				android.R.layout.simple_list_item_1,
@@ -190,8 +197,37 @@ public class MainActivity extends AppCompatActivity {
 		scenesListView.setAdapter(scenesAdapter);
 		// Add listener
 		scenesListView.setOnItemClickListener((adapterView, view, i, l) -> {
-			// TODO
+			Scene selectedScene = scenesAvailable.get((int) l);
+			scenesAvailable.remove((int) l);
+			addSceneDialog.dismiss();
+			handler.post(() -> addScene(selectedScene));
 		});
 		addSceneDialog.show();
+	}
+
+	private void addScene(Scene selectedScene) {
+		if (targetNode == null) {
+			NodeModel<AbstractScene> root = new NodeModel<>(selectedScene);
+			treeModel = new TreeModel<>(root);
+			adapter.setTreeModel(treeModel);
+			targetNode = root;
+			addOptions(root);
+		} else {
+			NodeModel<AbstractScene> selectedSceneNode = new NodeModel<>(selectedScene);
+			targetNode.setValue(selectedScene);
+			addOptions(selectedSceneNode);
+		}
+	}
+
+	@SuppressLint("DefaultLocale")
+	private void addOptions(NodeModel<AbstractScene> sceneNode) {
+		AbstractScene value = sceneNode.getValue();
+		if (!(value instanceof Scene)) return;
+		Scene scene = (Scene) value;
+		NodeModel<?>[] optionNodes = new NodeModel<?>[scene.getOptions().size()];
+		for (int i = 0; i < scene.getOptions().size(); i++) {
+			optionNodes[i] = new NodeModel<>(new UnknownScene("Unknown"));
+		}
+		handler.postDelayed(() -> editor.addChildNodes(sceneNode, optionNodes), 1000);
 	}
 }

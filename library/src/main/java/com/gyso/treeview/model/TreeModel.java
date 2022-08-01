@@ -1,11 +1,6 @@
 package com.gyso.treeview.model;
 
-import android.app.ActionBar;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
-
-import com.gyso.treeview.algorithm.table.Table;
-import com.gyso.treeview.util.TreeViewLog;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -50,10 +45,10 @@ public class TreeModel<T> implements Serializable {
                 nodeModels.add((NodeModel<T>)childNodes[i]);
                 childNodes[i].treeModel = this;
             }
-            ((NodeModel<T>)parent).addChildNodes(nodeModels);
-            for(NodeModel<?> child:childNodes){
-                child.traverseIncludeSelf(next->{
-                    next.floor = next.parentNode.floor+1;
+            ((NodeModel<T>) parent).addChildNodes(nodeModels);
+            for (NodeModel<?> child : childNodes) {
+                child.traverseIncludeSelf(next -> {
+                    next.floor = next.parentNode.floor + 1;
                     List<NodeModel> floorList = getFloorList(next.floor);
                     floorList.add(next);
                 });
@@ -64,8 +59,36 @@ public class TreeModel<T> implements Serializable {
         recordMaxChildrenNode(parent);
     }
 
-    public void recordMaxChildrenNode(NodeModel<?> aChildNode){
-        if(aChildNode==null){
+    /**
+     * add the node in some father node
+     *
+     * @param parent
+     * @param childNodes
+     */
+    public final void addNode(NodeModel<?> parent, List<NodeModel<?>> childNodes) {
+        if (parent != null && childNodes != null && childNodes.size() > 0) {
+            parent.treeModel = this;
+            List<NodeModel<T>> nodeModels = new LinkedList<>();
+            for (int i = 0; i < childNodes.size(); i++) {
+                nodeModels.add((NodeModel<T>) childNodes.get(i));
+                childNodes.get(i).treeModel = this;
+            }
+            ((NodeModel<T>) parent).addChildNodes(nodeModels);
+            for (NodeModel<?> child : childNodes) {
+                child.traverseIncludeSelf(next -> {
+                    next.floor = next.parentNode.floor + 1;
+                    List<NodeModel> floorList = getFloorList(next.floor);
+                    floorList.add(next);
+                });
+            }
+
+
+        }
+        recordMaxChildrenNode(parent);
+    }
+
+    public void recordMaxChildrenNode(NodeModel<?> aChildNode) {
+        if (aChildNode == null) {
             return;
         }
         LinkedList<?> cLs = aChildNode.getChildNodes();

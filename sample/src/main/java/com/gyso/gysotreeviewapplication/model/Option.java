@@ -1,4 +1,4 @@
-package com.gyso.gysotreeviewapplication.base;
+package com.gyso.gysotreeviewapplication.model;
 
 public class Option {
 	private String name;
